@@ -1,0 +1,32 @@
+import requests
+import time
+import telegram
+
+# Настройки
+BOT_TOKEN = 7277868783:AAHW7OGWYss2WSJsstUmD5A0MmZKzE7Y3Lg
+CHANNEL_ID = -1002175859598  # замени на свой ID
+bot = telegram.Bot(token=BOT_TOKEN)
+
+# Функция для получения курса
+def get_prices():
+    url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,toncoin&vs_currencies=usd'
+    data = requests.get(url).json()
+    btc = data['bitcoin']['usd']
+    eth = data['ethereum']['usd']
+    ton = data['toncoin']['usd']
+    return f"💰 Актуальные курсы:\n\nBTC: ${btc}\nETH: ${eth}\nTON: ${ton}"
+
+# Основной цикл
+def main():
+    message = bot.send_message(chat_id=CHANNEL_ID, text=get_prices())
+    message_id = message.message_id
+
+    while True:
+        try:
+            time.sleep(600)  # обновлять каждые 10 минут
+            bot.edit_message_text(chat_id=CHANNEL_ID, message_id=message_id, text=get_prices())
+        except Exception as e:
+            print("Ошибка:", e)
+
+if __name__ == '__main__':
+    main()
